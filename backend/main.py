@@ -35,6 +35,9 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.get("/")
+def root_handler():
+    return {"message": "Hello!"}
 
 app.include_router(referendum.router)
 app.include_router(user.router)

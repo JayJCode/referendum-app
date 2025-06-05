@@ -1,0 +1,11 @@
+body {
+  margin: 0;
+  font-family: system-ui;
+  background: #f0f2f5;
+}
+
+input[type="datetime-local"] {
+  padding: 0.5rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+}

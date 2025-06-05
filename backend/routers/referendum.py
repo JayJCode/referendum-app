@@ -1,9 +1,11 @@
 from fastapi import APIRouter, Query, Depends, Body, HTTPException, status
-from sqlalchemy.orm import Session
+from sqlalchemy.orm import Session, joinedload
 from typing import Optional, List
 
 from database.database import get_db, Referendum as ReferendumModel
 from schemas.referendum import Referendum, CreateReferendum
+from schemas.user import UserResponse
+from routers.user import get_current_user_id
 
 
 router = APIRouter(prefix="/referendums", tags=["referendums"])
@@ -13,12 +15,13 @@ router = APIRouter(prefix="/referendums", tags=["referendums"])
 async def create_referendum(
     referendum: CreateReferendum,
     db: Session = Depends(get_db),
+    current_user_id: int = Depends(get_current_user_id)
     ):
     try:
         created_referendum = ReferendumModel(
             title=referendum.title,
             description=referendum.description,
-            creator_id=referendum.creator_id,
+            creator_id=current_user_id,
         )
         db.add(created_referendum)
         db.commit()
@@ -35,15 +38,20 @@ async def create_referendum(
 async def get_referendums(
     referendum_id: Optional[int] = Query(None, description="ID of the referendum"),
     user_id: Optional[int] = Query(None, description="ID of the user requesting the referendum"),
+    expand: str = Query(None, description="Expand relationships (e.g., creator)"),
     db: Session = Depends(get_db),
 ):
     try:
+        query = db.query(ReferendumModel)
+        if expand == "creator":
+            query = query.options(joinedload(ReferendumModel.creator))
         if referendum_id:
-            referendums = db.query(ReferendumModel).filter(ReferendumModel.id == referendum_id).first()
+            referendums = query.filter(ReferendumModel.id == referendum_id).first()
         elif user_id:
-            referendums = db.query(ReferendumModel).filter(ReferendumModel.creator_id == user_id).all()
+            referendums = query.filter(ReferendumModel.creator_id == user_id).all()
         else:
-            referendums = db.query(ReferendumModel).all()
+            referendums = query.all()
+        db.expire_all()
         return referendums
     except Exception as e:
         raise HTTPException(
