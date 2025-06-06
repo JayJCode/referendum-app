@@ -1,122 +1,116 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import API from '../api';
+import { useEffect, useState} from 'react';
+import { formatDateTime, formatDateOnly } from '../utils/dateFormatter';
+import { getVotesByReferendumId, createVote } from '../api';
+import { useAuth } from '../context/AuthContext';
 
-export default function CreateReferendum() {
-  const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: '',
-    description: ''
-  });
+export default function ReferendumCard({ referendum }) {
+  const { user } = useAuth();
+  const [votes, setVotes] = useState([]);
+  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [hasVoted, setHasVoted] = useState(false);
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  useEffect(() => {
+    const fetchVotes = async () => {
+      try {
+        const data = await getVotesByReferendumId(referendum.id);
+        setVotes(data);
+        if (user) {
+          const alreadyVoted = data.some(v => v.user_id === user.id);
+          setHasVoted(alreadyVoted);
+        }
+      } catch (error) {
+        console.error('Failed to fetch votes:', error);
+        setError('Błąd wczytywania głosów.');
+      } finally {
+        setLoading(false);
+      }
+    };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setIsSubmitting(true);
-    setError('');
+    fetchVotes();
+  }, [referendum.id, user]);
 
+  const handleVote = async (voteValue) => {
     try {
-      await API.post('/referendums/', {
-        ...formData,
-      });
-      navigate('/referendums');
+      await createVote(referendum.id, voteValue);
+      // Odśwież listę głosów
+      const updatedVotes = await getVotesByReferendumId(referendum.id);
+      setVotes(updatedVotes);
+      setHasVoted(true);
     } catch (err) {
-      setError(err.response?.data?.detail || 'Failed to create referendum');
-    } finally {
-      setIsSubmitting(false);
+      if (err.response?.data?.detail) {
+        setError(err.response.data.detail);
+      } else {
+        setError('Nie udało się oddać głosu.');
+      }
     }
   };
 
+  const votesFor = votes.filter(v => v.vote_value === true).length;
+  const votesAgainst = votes.filter(v => v.vote_value === false).length;
+
   return (
-    <div style={{ maxWidth: '600px', margin: '2rem auto' }}>
-      <h2>Create New Referendum</h2>
-      
-      {error && (
-        <div style={{ 
-          color: 'red', 
-          marginBottom: '1rem',
-          padding: '0.5rem',
-          background: '#ffeeee'
-        }}>
-          {error}
+    <div style={{
+      border: '1px solid #ddd',
+      borderRadius: '8px',
+      padding: '1rem',
+      marginBottom: '1rem',
+      cursor: 'pointer',
+      transition: 'box-shadow 0.2s',
+      ':hover': {
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+      }
+    }}>
+      <h3 style={{ marginTop: 0 }}>{referendum.title}</h3>
+      <p>{referendum.description}</p>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        color: '#666',
+        fontSize: '0.9rem'
+      }}>
+        <span>Created by: {referendum.creator?.username || `User #${referendum.creator_id}`}</span>
+        <span>{formatDateTime(referendum.start_date)}</span>
+      </div>
+      {referendum.start_date && (
+        <div style={{ marginTop: '0.5rem' }}>
+          <strong>Voting Period: </strong>
+          {formatDateOnly(referendum.start_date)} → {formatDateOnly(referendum.end_date)}
         </div>
       )}
-      
-      <form onSubmit={handleSubmit}>
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            Title*
-          </label>
-          <input
-            name="title"
-            type="text"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px'
-            }}
-          />
-        </div>
-        
-        <div style={{ marginBottom: '1.5rem' }}>
-          <label style={{ display: 'block', marginBottom: '0.5rem' }}>
-            Description*
-          </label>
-          <textarea
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            required
-            rows={6}
-            style={{ 
-              width: '100%', 
-              padding: '0.75rem',
-              border: '1px solid #ddd',
-              borderRadius: '4px'
-            }}
-          />
-        </div>
-        
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <button
-            type="button"
-            onClick={() => navigate('/referendums')}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#f0f0f0',
-              border: '1px solid #ddd',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            Cancel
+
+      {/* Głosy */}
+      <div style={{ marginTop: '1rem', fontWeight: 'bold' }}>
+        {loading ? (
+          <p>Loading votes...</p>
+        ) : (
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <span style={{ color: 'green' }}>✅ Za: {votesFor}</span>
+            <span style={{ color: 'red' }}>❌ Przeciw: {votesAgainst}</span>
+          </div>
+        )}
+      </div>
+
+      {/* Głosowanie */}
+      {user && !loading && !hasVoted && (
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <button onClick={() => handleVote(true)} style={{ padding: '0.5rem 1rem' }}>
+            Głosuj ZA
           </button>
-          <button 
-            type="submit" 
-            disabled={isSubmitting}
-            style={{
-              padding: '0.75rem 1.5rem',
-              background: '#28a745',
-              color: 'white',
-              border: 'none',
-              borderRadius: '4px',
-              cursor: 'pointer'
-            }}
-          >
-            {isSubmitting ? 'Creating...' : 'Create Referendum'}
+          <button onClick={() => handleVote(false)} style={{ padding: '0.5rem 1rem' }}>
+            Głosuj PRZECIW
           </button>
         </div>
-      </form>
+      )}
+
+      {/* Komunikat */}
+      {user && hasVoted && (
+        <p style={{ marginTop: '1rem', color: '#888' }}>Już oddałeś głos w tym referendum.</p>
+      )}
+
+      {error && (
+        <p style={{ color: 'red', marginTop: '1rem' }}>{error}</p>
+      )}
     </div>
   );
 }

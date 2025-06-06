@@ -33,3 +33,17 @@ export const getUserReferendums = async (userId, params = {}) => {
 export const createReferendum = async (data) => {
   return API.post('/referendums/', data);
 };
+
+export const getVotesByReferendumId = async (referendumId) => {
+  try {
+    const response = await API.get(`/votes/?referendum_id=${referendumId}`);
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching votes", error);
+    return [];
+  }
+};
+
+export const createVote = async (voteData) => {
+  return API.post('/votes/', voteData);
+};

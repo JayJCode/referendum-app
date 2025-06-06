@@ -6,6 +6,7 @@ import Home from './pages/Home';
 import Login from './pages/Login';
 import Referendums from './pages/Referendum';
 import CreateReferendum from './pages/CreateReferendum';
+import Register from './pages/Register';
 
 export default function App() {
   return (
@@ -17,6 +18,7 @@ export default function App() {
             <Routes>
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
+              <Route path="/register" element={<Register />} />
               <Route path="/referendums" element={<Referendums />} />
               <Route path="/referendums/create" element={<CreateReferendum />} />
             </Routes>

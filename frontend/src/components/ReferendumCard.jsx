@@ -1,8 +1,31 @@
+import { useEffect, useState } from 'react';
 import { formatDateTime, formatDateOnly } from '../utils/dateFormatter';
+import { getVotesByReferendumId } from '../api';
 
 export default function ReferendumCard({ referendum }) {
+  const [votes, setVotes] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchVotes = async () => {
+      try {
+        const data = await getVotesByReferendumId(referendum.id);
+        setVotes(data);
+      } catch (error) {
+        console.error('Failed to fetch votes:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchVotes();
+  }, [referendum.id]);
+
+  const votesFor = votes.filter(v => v.vote_value === true).length;
+  const votesAgainst = votes.filter(v => v.vote_value === false).length;
+
   return (
-    <div style={{ 
+    <div style={{
       border: '1px solid #ddd',
       borderRadius: '8px',
       padding: '1rem',
@@ -15,8 +38,8 @@ export default function ReferendumCard({ referendum }) {
     }}>
       <h3 style={{ marginTop: 0 }}>{referendum.title}</h3>
       <p>{referendum.description}</p>
-      <div style={{ 
-        display: 'flex', 
+      <div style={{
+        display: 'flex',
         justifyContent: 'space-between',
         color: '#666',
         fontSize: '0.9rem'
@@ -26,10 +49,22 @@ export default function ReferendumCard({ referendum }) {
       </div>
       {referendum.start_date && (
         <div style={{ marginTop: '0.5rem' }}>
-          <strong>Voting Period: </strong> 
+          <strong>Voting Period: </strong>
           {formatDateOnly(referendum.start_date)} → {formatDateOnly(referendum.end_date)}
         </div>
       )}
+
+      {/* Głosy */}
+      <div style={{ marginTop: '1rem', fontWeight: 'bold' }}>
+        {loading ? (
+          <p>Loading votes...</p>
+        ) : (
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <span>✅ Za: {votesFor}</span>
+            <span>❌ Przeciw: {votesAgainst}</span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

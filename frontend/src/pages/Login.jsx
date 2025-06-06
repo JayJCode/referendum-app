@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { Link } from 'react-router-dom';
 
 export default function Login() {
     const { login } = useAuth();
@@ -78,6 +79,9 @@ export default function Login() {
           {isLoading ? 'Logging in...' : 'Login'}
         </button>
       </form>
+      <p style={{ textAlign: 'center', marginTop: '1rem' }}>
+        Don't have an account? <Link to="/register" style={{ color: '#007bff' }}>Register here</Link>
+      </p>
     </div>
   );
 }
