@@ -7,6 +7,8 @@ import Login from './pages/Login';
 import Referendums from './pages/Referendum';
 import CreateReferendum from './pages/CreateReferendum';
 import Register from './pages/Register';
+import Moderate from './pages/Moderate';
+import EditReferendum from './pages/EditReferendum';
 
 export default function App() {
   return (
@@ -21,6 +23,8 @@ export default function App() {
               <Route path="/register" element={<Register />} />
               <Route path="/referendums" element={<Referendums />} />
               <Route path="/referendums/create" element={<CreateReferendum />} />
+              <Route path="/moderate" element={<Moderate />} />
+              <Route path="/referendums/edit/:id" element={<EditReferendum />} />
             </Routes>
           </main>
         </BrowserRouter>

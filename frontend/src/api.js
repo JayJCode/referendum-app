@@ -9,9 +9,11 @@ const API = axios.create({
 API.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+    config.headers['Authorization'] = `Bearer ${token}`;
   }
   return config;
+}, (error) => {
+  return Promise.reject(error);
 });
 
 export default API;
@@ -21,7 +23,7 @@ export const getReferendums = async (params = {}) => {
 };
 
 export const getReferendumById = async (id) => {
-  return API.get(`/referendums/?referendum_id=${id}`);
+  return API.get('/referendums/', { params: { referendum_id: id } });
 };
 
 export const getUserReferendums = async (userId, params = {}) => {
@@ -46,4 +48,12 @@ export const getVotesByReferendumId = async (referendumId) => {
 
 export const createVote = async (voteData) => {
   return API.post('/votes/', voteData);
+};
+
+export const deleteReferendum = async (id) => {
+  return API.delete(`/referendums/`, { params: { referendum_id: id } });
+};
+
+export const updateReferendum = async (id, data) => {
+  return API.patch(`/referendums/`, data, { params: { referendum_id: id } });
 };

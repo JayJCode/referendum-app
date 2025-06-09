@@ -1,16 +1,25 @@
 import { useEffect, useState } from 'react';
 import { formatDateTime, formatDateOnly } from '../utils/dateFormatter';
 import { getVotesByReferendumId } from '../api';
+import { createVote } from '../api';
+import { useAuth } from '../context/AuthContext';
 
 export default function ReferendumCard({ referendum }) {
   const [votes, setVotes] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [hasVoted, setHasVoted] = useState(false);
+  const [voteError, setVoteError] = useState('');
+  const { user } = useAuth();
 
   useEffect(() => {
     const fetchVotes = async () => {
       try {
         const data = await getVotesByReferendumId(referendum.id);
         setVotes(data);
+        if (user) {
+          const voted = data.some(v => v.user_id === user.id);
+          setHasVoted(voted);
+        }
       } catch (error) {
         console.error('Failed to fetch votes:', error);
       } finally {
@@ -19,10 +28,32 @@ export default function ReferendumCard({ referendum }) {
     };
 
     fetchVotes();
-  }, [referendum.id]);
+  }, [referendum.id, user]);
 
   const votesFor = votes.filter(v => v.vote_value === true).length;
   const votesAgainst = votes.filter(v => v.vote_value === false).length;
+
+  const handleVote = async (voteValue) => {
+    try {
+      await createVote({
+        referendum_id: referendum.id,
+        vote_value: voteValue
+      });
+      setHasVoted(true);
+      setVoteError('');
+      
+      // opcjonalnie odśwież głosy:
+      const updatedVotes = await getVotesByReferendumId(referendum.id);
+      setVotes(updatedVotes);
+    } catch (error) {
+      console.error('Vote failed:', error);
+      if (error.response?.data?.detail) {
+        setVoteError(error.response.data.detail);
+      } else {
+        setVoteError('Błąd podczas głosowania. Spróbuj ponownie.');
+      }
+    }
+  };
 
   return (
     <div style={{
@@ -65,6 +96,21 @@ export default function ReferendumCard({ referendum }) {
           </div>
         )}
       </div>
+      {/* Głosowanie */}
+      {!loading && user && !hasVoted && (
+        <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
+          <button onClick={() => handleVote(true)}>✅ Głosuj ZA</button>
+          <button onClick={() => handleVote(false)}>❌ Głosuj PRZECIW</button>
+        </div>
+      )}
+
+      {hasVoted && (
+        <p style={{ marginTop: '1rem', color: 'green' }}>✅ Twój głos został oddany</p>
+      )}
+
+      {voteError && (
+        <p style={{ marginTop: '1rem', color: 'red' }}>{voteError}</p>
+      )}
     </div>
   );
 }

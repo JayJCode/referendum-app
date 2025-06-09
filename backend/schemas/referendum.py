@@ -18,3 +18,12 @@ class Referendum(CreateReferendum):
     
     class Config:
         from_attributes = True
+        
+class ReferendumUpdate(BaseModel):
+    title: Optional[str] = None
+    description: Optional[str] = None
+    start_date: Optional[datetime] = None
+    end_date: Optional[datetime] = None
+    
+    class Config:
+        from_attributes = True

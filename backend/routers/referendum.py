@@ -3,8 +3,7 @@ from sqlalchemy.orm import Session, joinedload
 from typing import Optional, List
 
 from database.database import get_db, Referendum as ReferendumModel
-from schemas.referendum import Referendum, CreateReferendum
-from schemas.user import UserResponse
+from schemas.referendum import Referendum, CreateReferendum, ReferendumUpdate
 from routers.user import get_current_user_id
 
 
@@ -46,7 +45,8 @@ async def get_referendums(
         if expand == "creator":
             query = query.options(joinedload(ReferendumModel.creator))
         if referendum_id:
-            referendums = query.filter(ReferendumModel.id == referendum_id).first()
+            referendum = query.filter(ReferendumModel.id == referendum_id).first()
+            referendums = [referendum] if referendum else []
         elif user_id:
             referendums = query.filter(ReferendumModel.creator_id == user_id).all()
         else:
@@ -83,8 +83,8 @@ async def delete_referendum(
         
 @router.patch("/", response_model=Referendum)
 async def update_referendum(
-    referendum_id: int = Query(..., description="ID of the referendum to update"),
-    update_data: Referendum = Body(..., description="Content to update the referendum with"),
+    referendum_id: int = Query(...),
+    update_data: ReferendumUpdate = Body(...),
     db: Session = Depends(get_db),
 ):
     try:
@@ -94,12 +94,13 @@ async def update_referendum(
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Referendum with ID {referendum_id} not found"
             )
+
         update_dict = update_data.dict(exclude_unset=True)
         for field, value in update_dict.items():
             setattr(referendum, field, value)
         db.commit()
         return referendum
-        
+
     except Exception as e:
         db.rollback()
         raise HTTPException(

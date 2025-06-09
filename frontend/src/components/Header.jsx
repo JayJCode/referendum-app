@@ -34,6 +34,11 @@ export default function Header() {
             Login
           </Link>
         )}
+        {user?.role === 'admin' && (
+          <Link to="/moderate" style={{ color: 'white' }}>
+            Moderate
+          </Link>
+        )}
         <Link to="/referendums" style={{ color: 'white', marginRight: '1rem' }}>
             Referendums
         </Link>
