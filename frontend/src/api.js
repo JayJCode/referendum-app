@@ -57,3 +57,51 @@ export const deleteReferendum = async (id) => {
 export const updateReferendum = async (id, data) => {
   return API.patch(`/referendums/`, data, { params: { referendum_id: id } });
 };
+
+export const getUsers = async () => {
+  return API.get('/users/');
+};
+
+export const deleteUser = async (id) => {
+  return API.delete(`/users/`, { params: { user_id: id } });
+};
+
+export const updateUser = async (id, data) => {
+  return API.patch(`/users/`, data, { params: { user_id: id } });
+};
+
+export const getTags = async () => {
+  return API.get('/tags/');
+};
+
+export const createTag = async (tag_name) => {
+  return API.post('/tags/', { name: tag_name });
+};
+
+export const deleteTag = async (tag_id) => {
+  return API.delete(`/tags/${tag_id}/`);
+};
+
+export const getTagsByReferendumId = async (referendum_id) => {
+  return API.get(`/tags/referendum/${referendum_id}`);
+};
+
+export const addTagToReferendum = async (referendum_id, tag_id) => {
+  return API.post('/tags/referendum/', {
+    referendum_id,
+    tag_id
+  });
+};
+
+export const getTagIdByName = async (tagName) => {
+  const response = await getTags();
+  const tag = response.data.find(t => t.name.toLowerCase() === tagName.toLowerCase());
+  if (!tag) throw new Error(`Tag "${tagName}" not found`);
+  return tag.id;
+};
+
+export const removeTagFromReferendum = async (referendum_id, tag_id) => {
+  return API.delete('/tags/referendum/', {
+    params: { referendum_id, tag_id }
+  });
+};

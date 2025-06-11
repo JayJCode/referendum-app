@@ -12,6 +12,12 @@ export default function Header() {
       display: 'flex',
       justifyContent: 'space-between',
       alignItems: 'center',
+      minWidth: 1000,
+      position: 'fixed',
+      top: 0,
+      left: 0,
+      right: 0,
+      zIndex: 1000
     }}>
       <h1>Referendum App</h1>
       
@@ -35,9 +41,17 @@ export default function Header() {
           </Link>
         )}
         {user?.role === 'admin' && (
-          <Link to="/moderate" style={{ color: 'white' }}>
-            Moderate
-          </Link>
+          <>
+            <Link to="/moderate" style={{ color: 'white' }}>
+              Moderate
+            </Link>
+            <Link to="/users" style={{ color: 'white' }}>
+              Users
+            </Link>
+            <Link to="/tags" style={{ color: 'white' }}>
+              Tags
+            </Link>
+          </>
         )}
         <Link to="/referendums" style={{ color: 'white', marginRight: '1rem' }}>
             Referendums

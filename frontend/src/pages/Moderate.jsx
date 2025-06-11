@@ -8,6 +8,8 @@ export default function Moderate() {
   const [referendums, setReferendums] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [searchTerm, setSearchTerm] = useState('');
+  const [statusFilter, setStatusFilter] = useState('');
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -23,7 +25,7 @@ export default function Moderate() {
         setReferendums(response.data);
       } catch (error) {
         console.error('Failed to fetch referendums:', error);
-        setError('Nie udało się pobrać referendum.');
+        setError('Failed to load referendums.');
       } finally {
         setLoading(false);
       }
@@ -33,29 +35,58 @@ export default function Moderate() {
   }, [user, navigate]);
 
   const handleDelete = async (id) => {
-    if (!window.confirm('Czy na pewno chcesz usunąć to referendum?')) return;
+    if (!window.confirm('Are you sure you want to delete this referendum?')) return;
 
     try {
       await deleteReferendum(id);
       setReferendums(prev => prev.filter(ref => ref.id !== id));
     } catch (error) {
       console.error('Failed to delete referendum:', error);
-      alert('Wystąpił błąd podczas usuwania.');
+      alert('An error occurred while deleting.');
     }
   };
 
+  const filteredReferendums = referendums.filter(ref => {
+    const matchesSearch = ref.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                          ref.description.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesStatus = statusFilter === '' || ref.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
   return (
     <div style={{ padding: '2rem' }}>
-      <h2 style={{ marginBottom: '1rem' }}>Moderacja Referendów</h2>
+      <h2 style={{ marginBottom: '1rem' }}>Referendum Moderation</h2>
 
-      {loading && <p>Ładowanie...</p>}
+      <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem', alignItems: 'center' }}>
+        <input
+          type="text"
+          placeholder="Search by title or description..."
+          value={searchTerm}
+          onChange={(e) => setSearchTerm(e.target.value)}
+          style={{ padding: '0.5rem', flexGrow: 1, minWidth: '250px' }}
+        />
+
+        <select
+          value={statusFilter}
+          onChange={(e) => setStatusFilter(e.target.value)}
+          style={{ padding: '0.5rem'}}
+        >
+          <option value="">All statuses</option>
+          <option value="active">Active</option>
+          <option value="pending">Pending</option>
+          <option value="closed">Closed</option>
+          <option value="cancelled">Cancelled</option>
+        </select>
+      </div>
+
+      {loading && <p>Loading...</p>}
       {error && <p style={{ color: 'red' }}>{error}</p>}
 
-      {!loading && referendums.length === 0 && (
-        <p>Brak dostępnych referendum do moderacji.</p>
+      {!loading && filteredReferendums.length === 0 && (
+        <p>No matching referendums to display.</p>
       )}
 
-      {referendums.map(ref => (
+      {filteredReferendums.map(ref => (
         <div key={ref.id} style={{
           border: '1px solid #ccc',
           padding: '1rem',
@@ -66,7 +97,7 @@ export default function Moderate() {
           <h3>{ref.title}</h3>
           <p>{ref.description}</p>
           <p style={{ fontSize: '0.9rem', color: '#555' }}>
-            <strong>Twórca:</strong> {ref.creator?.username || `User #${ref.creator_id}`}
+            <strong>Creator:</strong> {ref.creator?.username || `User #${ref.creator_id}`}
           </p>
 
           <div style={{ marginTop: '1rem', display: 'flex', gap: '1rem' }}>
@@ -81,7 +112,7 @@ export default function Moderate() {
                 cursor: 'pointer'
               }}
             >
-              Edytuj
+              Edit
             </button>
 
             <button
@@ -95,7 +126,7 @@ export default function Moderate() {
                 cursor: 'pointer'
               }}
             >
-              Usuń
+              Delete
             </button>
           </div>
         </div>

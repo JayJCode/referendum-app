@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, Query, HTTPException, status
+from fastapi import APIRouter, Depends, Query, Body, HTTPException, status
 from fastapi.security import HTTPBasic, HTTPBasicCredentials, OAuth2PasswordBearer
 from sqlalchemy.orm import Session
 from passlib.context import CryptContext
@@ -7,7 +7,7 @@ from pydantic import EmailStr
 from datetime import datetime, timedelta
 from jose import jwt, JWTError
 
-from schemas.user import UserCreate, UserResponse
+from schemas.user import UserCreate, UserResponse, UserUpdateResponse, UserUpdate
 from database.database import get_db, User as UserModel
 
 
@@ -92,6 +92,35 @@ async def get_users(
             return users   
         return query.all()
     except Exception as e:
+        raise HTTPException(
+            status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+            detail=str(e)
+        )
+        
+@router.patch("/", response_model=UserUpdateResponse, status_code=status.HTTP_201_CREATED)
+async def update_user(
+    user_id: int = Query(...),
+    user_update: UserUpdate = Body(...),
+    db: Session = Depends(get_db)
+):
+    try:
+        user = db.query(UserModel).filter(UserModel.id == user_id).first()
+        if not user:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND,
+                detail=f"User with ID {user_id} not found"
+            )
+        user_dict = user_update.dict(exclude_unset=True)
+        for field, value in user_dict.items():
+            setattr(user, field, value)
+        # if user_dict.get("password"):
+        #     user.hashed_password = pwd_context.hash(user_dict["password"])
+        #     setattr(user, "hashed_password", user.hashed_password)
+        db.commit()
+        return user
+
+    except Exception as e:
+        db.rollback()
         raise HTTPException(
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail=str(e)

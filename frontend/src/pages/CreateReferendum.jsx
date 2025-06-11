@@ -12,17 +12,19 @@ export default function CreateReferendum() {
       await createReferendum({ ...formData, creator_id: user.id });
       navigate('/referendums');
     } catch (err) {
-      console.error('Błąd podczas tworzenia referendum:', err);
-      alert('Nie udało się utworzyć referendum.');
+      console.error('Error accured:', err);
+      alert('There was a problem with creating referendum.');
     }
   };
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Utwórz nowe referendum</h2>
+      <h2>Create referendum</h2>
       <ReferendumForm
         onSubmit={handleSubmit}
-        submitText="Utwórz"
+        submitText="Create"
+        showDates={false}
+        showStatus={false}
       />
     </div>
   );

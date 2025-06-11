@@ -71,6 +71,20 @@ class Vote(Base):
     
     user = relationship("User", back_populates="votes")
     referendum = relationship("Referendum", back_populates="votes")
+    
+class Tag(Base):
+    __tablename__ = "tags"
+    
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    
+    tag_referendum = relationship("Referendum", secondary="referendum_tags")
+
+class ReferendumTag(Base):
+    __tablename__ = "referendum_tags"
+    
+    referendum_id = Column(Integer, ForeignKey('referendums.id'), primary_key=True)
+    tag_id = Column(Integer, ForeignKey('tags.id'), primary_key=True)
 
 
 def create_tables():

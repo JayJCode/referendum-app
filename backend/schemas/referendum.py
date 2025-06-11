@@ -1,5 +1,5 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, Literal
 from pydantic import BaseModel
 
 from schemas.user import UserResponse
@@ -20,6 +20,7 @@ class Referendum(CreateReferendum):
         from_attributes = True
         
 class ReferendumUpdate(BaseModel):
+    status: Optional[Literal["pending", "active", "closed", "cancelled"]] = None
     title: Optional[str] = None
     description: Optional[str] = None
     start_date: Optional[datetime] = None

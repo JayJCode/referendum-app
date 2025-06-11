@@ -9,6 +9,9 @@ import CreateReferendum from './pages/CreateReferendum';
 import Register from './pages/Register';
 import Moderate from './pages/Moderate';
 import EditReferendum from './pages/EditReferendum';
+import Users from './pages/Users';
+import EditUser from './pages/EditUser';
+import Tags from './pages/Tags';
 
 export default function App() {
   return (
@@ -25,6 +28,9 @@ export default function App() {
               <Route path="/referendums/create" element={<CreateReferendum />} />
               <Route path="/moderate" element={<Moderate />} />
               <Route path="/referendums/edit/:id" element={<EditReferendum />} />
+              <Route path="/users" element={<Users />} />
+              <Route path="/users/edit/:id" element={<EditUser />} />
+              <Route path="/tags" element={<Tags />} />
             </Routes>
           </main>
         </BrowserRouter>

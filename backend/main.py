@@ -6,6 +6,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import referendum
 from routers import user
 from routers import votes
+from routers import tags
 from logger import configure_logger
 from database import database
 
@@ -42,6 +43,7 @@ def root_handler():
 app.include_router(referendum.router)
 app.include_router(user.router)
 app.include_router(votes.router)
+app.include_router(tags.router)
 
 
 if __name__ == "__main__":
