@@ -84,7 +84,6 @@ export default function Users() {
           borderRadius: '6px',
           boxShadow: '0 1px 4px rgba(0,0,0,0.05)'
         }}>
-          <p><strong>ID:</strong> {u.id}</p>
           <p><strong>Username:</strong> {u.username}</p>
           <p><strong>Email:</strong> {u.email}</p>
           <p><strong>Role:</strong> {u.role}</p>

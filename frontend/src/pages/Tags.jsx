@@ -122,8 +122,7 @@ export default function Tags() {
             alignItems: 'center'
           }}>
             <div>
-              <p><strong>ID:</strong> {t.id}</p>
-              <p><strong>Name:</strong> {t.name}</p>
+              <p><strong>{t.name}</strong></p>
             </div>
             <button
               onClick={() => handleDelete(t.id)}
