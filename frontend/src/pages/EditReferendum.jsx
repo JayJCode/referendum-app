@@ -118,14 +118,16 @@ export default function EditReferendum() {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Edit Referendum</h2>
-      <ReferendumForm
-        initialValues={referendum}
-        onSubmit={handleSubmit}
-        submitText="Save changes"
-        showDates={true}
-        showStatus={true}
-      />
+      <div style={{ paddingTop: '5rem', maxWidth: '600px', margin: '0 auto' }}>
+        <h2>Edit Referendum</h2>
+        <ReferendumForm
+          initialValues={referendum}
+          onSubmit={handleSubmit}
+          submitText="Save changes"
+          showDates={true}
+          showStatus={true}
+        />
+      </div>
     </div>
   );
 }

@@ -52,6 +52,7 @@ export default function Register() {
   };
 
   return (
+    <div style={{ paddingTop: '5rem', maxWidth: '600px', margin: '0 auto' }}>
     <div style={{ maxWidth: '400px', margin: '2rem auto', padding: '2rem', border: '1px solid #ddd', borderRadius: '8px' }}>
       <h2>Register New Account</h2>
       {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -130,6 +131,7 @@ export default function Register() {
       <p style={{ marginTop: '1rem', textAlign: 'center' }}>
         Already have an account? <a href="/login" style={{ color: '#007bff' }}>Login here</a>
       </p>
+    </div>
     </div>
   );
 }

@@ -47,70 +47,70 @@ export default function ReferendumForm({
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <input
-        type="text"
-        name="title"
-        placeholder="Title"
-        value={form.title}
-        onChange={handleChange}
-        required
-      />
-      <textarea
-        name="description"
-        placeholder="Description"
-        value={form.description}
-        onChange={handleChange}
-        required
-        rows={4}
-      />
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <input
+          type="text"
+          name="title"
+          placeholder="Title"
+          value={form.title}
+          onChange={handleChange}
+          required
+        />
+        <textarea
+          name="description"
+          placeholder="Description"
+          value={form.description}
+          onChange={handleChange}
+          required
+          rows={4}
+        />
 
-      {showDates && (
-        <div style={{ display: 'flex', gap: '1rem' }}>
-          <input
-            type="date"
-            name="start_date"
-            value={form.start_date}
-            onChange={handleChange}
-          />
-          <input
-            type="date"
-            name="end_date"
-            value={form.end_date}
-            onChange={handleChange}
-          />
-        </div>
-      )}
+        {showDates && (
+          <div style={{ display: 'flex', gap: '1rem' }}>
+            <input
+              type="date"
+              name="start_date"
+              value={form.start_date}
+              onChange={handleChange}
+            />
+            <input
+              type="date"
+              name="end_date"
+              value={form.end_date}
+              onChange={handleChange}
+            />
+          </div>
+        )}
 
-      {showStatus && (
-        <select name="status" value={form.status} onChange={handleChange}>
-          <option value="pending">⏳ Pending</option>
-          <option value="active">✅ Active</option>
-          <option value="closed">🔒 Closed</option>
-          <option value="cancelled">❌ Cancelled</option>
-        </select>
-      )}
+        {showStatus && (
+          <select name="status" value={form.status} onChange={handleChange}>
+            <option value="pending">⏳ Pending</option>
+            <option value="active">✅ Active</option>
+            <option value="closed">🔒 Closed</option>
+            <option value="cancelled">❌ Cancelled</option>
+          </select>
+        )}
 
-      <input
-        type="text"
-        name="tags"
-        placeholder="Tags (comma separated)"
-        value={tagsInput}
-        onChange={(e) => setTagsInput(e.target.value)}
-      />
+        <input
+          type="text"
+          name="tags"
+          placeholder="Tags (comma separated)"
+          value={tagsInput}
+          onChange={(e) => setTagsInput(e.target.value)}
+        />
 
-      <button
-        type="submit"
-        style={{
-          padding: '0.5rem 1rem',
-          background: '#4f46e5',
-          color: 'white',
-          border: 'none',
-          borderRadius: '4px'
-        }}
-      >
-        {submitText}
-      </button>
-    </form>
+        <button
+          type="submit"
+          style={{
+            padding: '0.5rem 1rem',
+            background: '#4f46e5',
+            color: 'white',
+            border: 'none',
+            borderRadius: '4px'
+          }}
+        >
+          {submitText}
+        </button>
+      </form>
   );
 }

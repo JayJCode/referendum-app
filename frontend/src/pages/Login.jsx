@@ -29,6 +29,7 @@ export default function Login() {
     };
     
   return (
+    <div style={{ paddingTop: '5rem', maxWidth: '600px', margin: '0 auto' }}>
     <div style={{ 
       maxWidth: '400px', 
       margin: '2rem auto',
@@ -82,6 +83,7 @@ export default function Login() {
       <p style={{ textAlign: 'center', marginTop: '1rem' }}>
         Don't have an account? <Link to="/register" style={{ color: '#007bff' }}>Register here</Link>
       </p>
+    </div>
     </div>
   );
 }

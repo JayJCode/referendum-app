@@ -1,4 +1,5 @@
 import os
+from requests import Session
 from sqlalchemy import create_engine, Column, Integer, String, Boolean, DateTime, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 from datetime import datetime
@@ -64,7 +65,7 @@ class Vote(Base):
     __tablename__ = "votes"
     
     id = Column(Integer, primary_key=True, index=True)
-    user_id = Column(Integer, ForeignKey("users.id"))
+    user_id = Column(Integer, ForeignKey("users.id", ondelete="CASCADE"))
     referendum_id = Column(Integer, ForeignKey("referendums.id"))
     vote_value = Column(Boolean)  # True=Yes, False=No
     voted_at = Column(DateTime, default=datetime.utcnow)
@@ -89,33 +90,15 @@ class ReferendumTag(Base):
 
 def create_tables():
     Base.metadata.create_all(bind=engine)
-
-
-def add_test_data():
-    db = SessionLocal()
-    try:
-        # Add a test user
-        test_user = User(
-            username="testuser",
-            email="test@example.com",
-            hashed_password="fakehashedpass",  # In real app, use password hashing
-            role="user"
-        )
-        db.add(test_user)
-        db.commit()
-        
-        # Add a test referendum
-        test_referendum = Referendum(
-            title="Sample Referendum",
-            description="This is a test referendum",
-            creator_id=test_user.id
-        )
-        db.add(test_referendum)
-        db.commit()
-    finally:
-        db.close()
+    
+def delete_votes_with_no_user(db: Session):
+    """Usuwa wszystkie głosy, które nie mają przypisanego użytkownika (user_id IS NULL)."""
+    deleted = db.query(Vote).filter(Vote.user_id == None).delete(synchronize_session=False)
+    db.commit()
+    print(f"Usunięto {deleted} głosów bez użytkownika.")
 
 
 if __name__ == "__main__":
     create_tables()
+    delete_votes_with_no_user(SessionLocal())
     print("Database tables created successfully!")

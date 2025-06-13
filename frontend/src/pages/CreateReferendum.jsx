@@ -19,13 +19,15 @@ export default function CreateReferendum() {
 
   return (
     <div style={{ maxWidth: '600px', margin: '0 auto' }}>
-      <h2>Create referendum</h2>
-      <ReferendumForm
-        onSubmit={handleSubmit}
-        submitText="Create"
-        showDates={false}
-        showStatus={false}
-      />
+      <div style={{ paddingTop: '5rem', maxWidth: '600px', margin: '0 auto' }}>
+        <h2>Create referendum</h2>
+        <ReferendumForm
+          onSubmit={handleSubmit}
+          submitText="Create"
+          showDates={false}
+          showStatus={false}
+        />
+      </div>
     </div>
   );
 }

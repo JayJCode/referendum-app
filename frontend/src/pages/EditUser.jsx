@@ -49,16 +49,17 @@ export default function EditUser() {
   };
 
   return (
-    <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-      <h2>Edit User</h2>
-      <input
-        type="text"
-        name="username"
-        placeholder="Username"
-        value={form.username}
-        onChange={handleChange}
-        required
-      />
+    <div style={{ paddingTop: '5rem', maxWidth: '600px', margin: '0 auto' }}>
+      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+        <h2>Edit User</h2>
+        <input
+          type="text"
+          name="username"
+          placeholder="Username"
+          value={form.username}
+          onChange={handleChange}
+          required
+        />
       <input
         type="email"
         name="email"
@@ -87,5 +88,6 @@ export default function EditUser() {
         Save
       </button>
     </form>
+    </div>
   );
 }
